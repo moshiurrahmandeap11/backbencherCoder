@@ -67,8 +67,6 @@ const Navbar = () => {
       try {
         setIsLoadingProfile(true);
         console.log('Fetching profile image for UID:', user.uid);
-        
-        // UID দিয়ে ডাটাবেজ থেকে ইউজার ডেটা fetch করুন
         const response = await axiosInstance.get(`/users/uid/${user.uid}`);
         
         console.log('User profile response:', response.data);
@@ -76,9 +74,8 @@ const Navbar = () => {
         if (response.data.success && response.data.data?.profileImage) {
           const profileImage = response.data.data.profileImage;
           
-          // যদি profileImage থাকে এবং তা URL না হয়, তাহলে full URL তৈরি করুন
           if (profileImage && !profileImage.startsWith('http')) {
-            // API এর বেস URL যোগ করুন
+
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
             setUserProfileImage(`${baseUrl}${profileImage}`);
           } else {
@@ -99,7 +96,7 @@ const Navbar = () => {
     };
 
     fetchUserProfileImage();
-  }, [user?.uid]); // শুধু UID পরিবর্তন হলে refetch করবে
+  }, [user?.uid]); 
 
   const navItems = [
     { name: 'Home', path: '/' },
@@ -114,7 +111,8 @@ const Navbar = () => {
     try {
       await logOut();
       setIsProfileOpen(false);
-      setUserProfileImage(null); // Clear profile image on logout
+      setIsMobileMenuOpen(false);
+      setUserProfileImage(null); 
       router.push('/');
     } catch (error) {
       console.error('Logout error:', error);
@@ -127,10 +125,6 @@ const Navbar = () => {
     return user.uid || user.email?.split('@')[0] || 'unknown-user';
   };
 
-  if (loading) {
-    return <SimpleLoader />;
-  }
-
   // User profile dropdown items with UID
   const profileItems = [
     { 
@@ -141,12 +135,12 @@ const Navbar = () => {
     { 
       icon: <LayoutDashboard className="w-4 h-4" />, 
       label: 'Dashboard', 
-      path: '/dashboard' 
+      path: `/dashboard/${getUserId()}`  
     },
     { 
       icon: <Settings className="w-4 h-4" />, 
       label: 'Settings', 
-      path: '/settings' 
+      path: `/settings/${getUserId()}`   
     },
   ];
 
@@ -157,11 +151,19 @@ const Navbar = () => {
     router.push(path);
   };
 
-  // Get avatar component
-  const renderAvatar = (size = 9, className = '') => {
+  // Get avatar component with fixed image sizes
+  const renderAvatar = (sizeType = 'medium', className = '') => {
+    const sizes = {
+      small: { container: 'w-8 h-8', icon: 'w-4 h-4' },
+      medium: { container: 'w-10 h-10', icon: 'w-5 h-5' },
+      large: { container: 'w-12 h-12', icon: 'w-6 h-6' },
+    };
+
+    const { container, icon } = sizes[sizeType] || sizes.medium;
+
     if (isLoadingProfile) {
       return (
-        <div className={`w-${size} h-${size} rounded-full bg-gradient-to-r from-[#D9FDA3] to-cyan-400 flex items-center justify-center ${className}`}>
+        <div className={`${container} rounded-full bg-linear-to-r from-[#D9FDA3] to-cyan-400 flex items-center justify-center ${className}`}>
           <div className="w-4 h-4 border-2 border-[#051320] border-t-transparent rounded-full animate-spin" />
         </div>
       );
@@ -169,14 +171,14 @@ const Navbar = () => {
 
     if (userProfileImage) {
       return (
-        <div className={`w-${size} h-${size} rounded-full bg-gradient-to-r from-[#D9FDA3] to-cyan-400 p-0.5 ${className}`}>
-          <div className="w-full h-full rounded-full overflow-hidden">
+        <div className={`${container} rounded-full bg-linear-to-r from-[#D9FDA3] to-cyan-400 p-0.5 ${className}`}>
+          <div className="w-full h-full rounded-full overflow-hidden relative">
             <Image 
               src={userProfileImage} 
               alt={user?.displayName || 'User'} 
-              width={size * 4}
-              height={size * 4}
-              className="w-full h-full object-cover"
+              fill
+              sizes="(max-width: 768px) 40px, 48px"
+              className="object-cover"
               priority
               unoptimized={process.env.NODE_ENV === 'development'}
             />
@@ -188,14 +190,14 @@ const Navbar = () => {
     // Firebase photoURL (fallback)
     if (user?.photoURL) {
       return (
-        <div className={`w-${size} h-${size} rounded-full bg-gradient-to-r from-[#D9FDA3] to-cyan-400 p-0.5 ${className}`}>
-          <div className="w-full h-full rounded-full overflow-hidden">
+        <div className={`${container} rounded-full bg-linear-to-r from-[#D9FDA3] to-cyan-400 p-0.5 ${className}`}>
+          <div className="w-full h-full rounded-full overflow-hidden relative">
             <Image 
               src={user.photoURL} 
               alt={user.displayName || 'User'} 
-              width={size * 4}
-              height={size * 4}
-              className="w-full h-full object-cover"
+              fill
+              sizes="(max-width: 768px) 40px, 48px"
+              className="object-cover"
               priority
             />
           </div>
@@ -205,11 +207,17 @@ const Navbar = () => {
 
     // Default avatar
     return (
-      <div className={`w-${size} h-${size} rounded-full bg-gradient-to-r from-[#D9FDA3] to-cyan-400 flex items-center justify-center ${className}`}>
-        <User className={`w-${size - 4} h-${size - 4} text-[#051320]`} />
+      <div className={`${container} rounded-full bg-linear-to-r from-[#D9FDA3] to-cyan-400 flex items-center justify-center ${className}`}>
+        <div className={`${icon} text-[#051320]`}>
+          <User className="w-full h-full" />
+        </div>
       </div>
     );
   };
+
+  if (loading) {
+    return <SimpleLoader />;
+  }
 
   return (
     <>
@@ -279,22 +287,22 @@ const Navbar = () => {
                 <div className="relative" ref={profileRef}>
                   <button
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
-                    className="flex items-center gap-2 p-1.5 rounded-full bg-gradient-to-r from-[#D9FDA3]/10 to-cyan-400/10 hover:from-[#D9FDA3]/20 hover:to-cyan-400/20 transition-all duration-300 border border-white/10"
+                    className="flex items-center gap-2 p-1.5 rounded-full bg-linear-to-r from-[#D9FDA3]/10 to-cyan-400/10 hover:from-[#D9FDA3]/20 hover:to-cyan-400/20 transition-all duration-300 border border-white/10"
                   >
                     {/* User Avatar from Database */}
-                    {renderAvatar(9)}
+                    {renderAvatar('small')}
                     
                     <ChevronDown className={`w-4 h-4 text-white transition-transform duration-300 ${isProfileOpen ? 'rotate-180' : ''}`} />
                   </button>
 
                   {/* Profile Dropdown Menu */}
                   {isProfileOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-56 rounded-xl bg-gradient-to-br from-white/5 to-transparent backdrop-blur-sm border border-white/10 shadow-2xl shadow-black/30 overflow-hidden z-50">
+                    <div className="absolute right-0 top-full mt-2 w-56 rounded-xl bg-linear-to-br from-white/5 to-transparent backdrop-blur-sm border border-white/10 shadow-2xl shadow-black/30 overflow-hidden z-50">
                       {/* User Info */}
                       <div className="p-4 border-b border-white/10">
                         <div className="flex items-center gap-3">
                           {/* Larger Avatar */}
-                          {renderAvatar(10, 'flex-shrink-0')}
+                          {renderAvatar('medium', 'flex-shrink-0')}
                           
                           <div className="min-w-0">
                             <p className="font-semibold text-white truncate">
@@ -341,7 +349,7 @@ const Navbar = () => {
                 // Login Button (Desktop)
                 <div className="hidden md:block">
                   <Link href="/auth/login">
-                    <button className="bg-gradient-to-r from-[#D9FDA3] to-cyan-400 text-[#051320] px-6 py-2 rounded-full font-semibold hover:opacity-90 transition-all duration-200 hover:scale-105 active:scale-95">
+                    <button className="bg-linear-to-r from-[#D9FDA3] to-cyan-400 text-[#051320] px-6 py-2 rounded-full font-semibold hover:opacity-90 transition-all duration-200 hover:scale-105 active:scale-95">
                       Grab It
                     </button>
                   </Link>
@@ -367,14 +375,14 @@ const Navbar = () => {
             ? 'translate-x-0 opacity-100' 
             : '-translate-x-full opacity-0'
         }`}>
-          <div className="h-full bg-gradient-to-b from-[#051320] to-[#0a1a2d] border-r border-white/10 shadow-2xl overflow-y-auto">
+          <div className="h-full bg-linear-to-b from-[#051320] to-[#0a1a2d] border-r border-white/10 shadow-2xl overflow-y-auto">
             <div className="p-6">
               {/* User Info in Mobile Menu */}
               {user && (
-                <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-[#D9FDA3]/10 to-cyan-400/10 border border-white/10">
+                <div className="mb-6 p-4 rounded-xl bg-linear-to-r from-[#D9FDA3]/10 to-cyan-400/10 border border-white/10">
                   <div className="flex items-center gap-3">
                     {/* Mobile Avatar */}
-                    {renderAvatar(12, 'flex-shrink-0')}
+                    {renderAvatar('large', 'flex-shrink-0')}
                     
                     <div className="min-w-0">
                       <p className="font-semibold text-white truncate">
@@ -409,7 +417,7 @@ const Navbar = () => {
                     href={item.path}
                     className={`px-4 py-3 rounded-lg transition-all duration-200 ${
                       activeNav === item.path
-                        ? 'bg-gradient-to-r from-[#D9FDA3] to-cyan-400 text-[#051320]'
+                        ? 'bg-linear-to-r from-[#D9FDA3] to-cyan-400 text-[#051320]'
                         : 'text-white hover:bg-white/10 hover:text-[#D9FDA3]'
                     }`}
                     onClick={() => {
@@ -460,7 +468,7 @@ const Navbar = () => {
                     className="mt-4"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <button className="w-full bg-gradient-to-r from-[#D9FDA3] to-cyan-400 text-[#051320] px-6 py-3 rounded-full font-semibold hover:opacity-90 transition-all duration-200 active:scale-95">
+                    <button className="w-full bg-lilnear-to-r from-[#D9FDA3] to-cyan-400 text-[#051320] px-6 py-3 rounded-full font-semibold hover:opacity-90 transition-all duration-200 active:scale-95">
                       Grab It
                     </button>
                   </Link>

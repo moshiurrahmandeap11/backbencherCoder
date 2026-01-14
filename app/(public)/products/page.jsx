@@ -1,6 +1,7 @@
 "use client"
+import SimpleLoader from '@/app/components/sharedItems/SimpleLoader/SimpleLoader';
 import axiosInstance from '@/app/lib/AxiosInstance/AxiosInstance';
-import { ArrowRight, CheckCircle, Eye, Heart, RefreshCw, Shield, ShoppingBag, Star, TrendingUp, Truck, Zap } from 'lucide-react';
+import { CheckCircle, Eye, Heart, RefreshCw, Shield, ShoppingBag, Star, TrendingUp, Truck, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 const Products = () => {
@@ -106,14 +107,7 @@ const Products = () => {
 
   // Loading state
   if (loading) {
-    return (
-      <section className="py-16 md:py-24 bg-gradient-to-b from-[#051320] via-[#0a1a2d] to-[#051320]">
-        <div className="container mx-auto px-4 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#D9FDA3] mx-auto"></div>
-          <p className="text-gray-300 mt-4">Loading products...</p>
-        </div>
-      </section>
-    );
+    return <SimpleLoader />
   }
 
   // Error state
@@ -434,14 +428,6 @@ const Products = () => {
             </div>
           </div>
         )}
-
-        {/* View All Button */}
-        <div className="text-center mt-12 md:mt-16">
-          <button className="group px-8 py-3.5 bg-transparent border-2 border-[#D9FDA3] text-[#D9FDA3] rounded-full font-semibold hover:bg-[#D9FDA3] hover:text-[#051320] transition-all duration-300 flex items-center gap-3 mx-auto">
-            <span>View All Products</span>
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
       </div>
     </section>
   );

@@ -1,22 +1,23 @@
 "use client"
 import {
-    ArrowRight,
-    Award,
-    Briefcase,
-    CheckCircle,
-    Clock,
-    Code2,
-    Globe,
-    Heart,
-    Lightbulb,
-    Rocket,
-    Shield,
-    Sparkles,
-    Star,
-    Target,
-    TrendingUp,
-    Users
+  ArrowRight,
+  Award,
+  Briefcase,
+  CheckCircle,
+  Clock,
+  Code2,
+  Globe,
+  Heart,
+  Lightbulb,
+  Rocket,
+  Shield,
+  Sparkles,
+  Star,
+  Target,
+  TrendingUp,
+  Users
 } from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
 
 const About = () => {
@@ -400,7 +401,7 @@ const About = () => {
             Our <span className="text-[#D9FDA3]">Tech Stack</span>
           </h3>
           <div className="rounded-2xl bg-gradient-to-br from-white/5 to-transparent backdrop-blur-sm border border-white/10 p-6 md:p-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className=" lg:grid-cols-2 gap-8">
               <div>
                 <h4 className="text-xl font-bold text-white mb-6">Technology Expertise</h4>
                 <div className="space-y-6">
@@ -415,28 +416,6 @@ const About = () => {
                           className={`h-full bg-gradient-to-r ${tech.color} rounded-full transition-all duration-1000`}
                           style={{ width: `${tech.level}%` }}
                         />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              <div>
-                <h4 className="text-xl font-bold text-white mb-6">Certifications & Awards</h4>
-                <div className="space-y-4">
-                  {[
-                    { title: "AWS Certified Solutions Architect", issuer: "Amazon Web Services", year: "2023" },
-                    { title: "Google UX Design Professional", issuer: "Google", year: "2022" },
-                    { title: "Best Tech Startup 2022", issuer: "Tech Awards", year: "2022" },
-                    { title: "React Advanced Certification", issuer: "Meta", year: "2023" }
-                  ].map((cert, index) => (
-                    <div key={index} className="p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <div className="text-white font-semibold">{cert.title}</div>
-                          <div className="text-gray-300 text-sm">{cert.issuer}</div>
-                        </div>
-                        <div className="text-[#D9FDA3] font-medium">{cert.year}</div>
                       </div>
                     </div>
                   ))}
@@ -493,14 +472,13 @@ const About = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="px-8 py-3.5 bg-gradient-to-r from-[#D9FDA3] to-cyan-400 text-[#051320] rounded-full font-semibold hover:shadow-2xl hover:shadow-[#D9FDA3]/30 transition-all duration-300 flex items-center gap-3">
+              <Link href="/contact">
+              
+              <button className="px-8 py-3.5 cursor-pointer bg-gradient-to-r from-[#D9FDA3] to-cyan-400 text-[#051320] rounded-full font-semibold hover:shadow-2xl hover:shadow-[#D9FDA3]/30 transition-all duration-300 flex items-center gap-3">
                 <span>Start a Project</span>
                 <ArrowRight className="w-5 h-5" />
               </button>
-              
-              <button className="px-8 py-3.5 bg-transparent border-2 border-[#D9FDA3] text-[#D9FDA3] rounded-full font-semibold hover:bg-[#D9FDA3]/10 transition-all duration-300">
-                Join Our Team
-              </button>
+              </Link>
             </div>
           </div>
         </div>

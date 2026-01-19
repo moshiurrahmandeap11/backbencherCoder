@@ -1,6 +1,7 @@
 "use client";
 
 import { Settings } from "lucide-react";
+import ContactComponents from "../AdminSidebar/ContactsComponents/ContactComponents";
 import ProductsComponents from "../AdminSidebar/ProductsComponents/ProductsComponents";
 import ServicesComponents from "../AdminSidebar/ServicesComponents/ServicesComponents";
 import UsersComponents from "../AdminSidebar/UsersComponents/UsersComponents";
@@ -20,6 +21,8 @@ const AdminMainComponents = ({ activeComponent }) => {
         return <ProductsComponents />
       case "services":
         return <ServicesComponents />;
+      case "contacts":
+        return <ContactComponents />
       case "settings":
         return <SettingsComponent />;
       default:

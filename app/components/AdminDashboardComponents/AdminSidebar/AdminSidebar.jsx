@@ -4,6 +4,7 @@ import {
     BarChart3,
     ChevronLeft,
     ChevronRight,
+    Contact,
     Home,
     Layers,
     Settings,
@@ -35,6 +36,7 @@ const AdminSidebar = ({
         { id: "analytics", label: "Analytics", icon: BarChart3 },
         { id: "products", label: "Products", icon: ShoppingCart },
         { id: "services", label: "Services", icon: Layers },
+        { id: "contacts", label: "Contact", icon: Contact},
         { id: "settings", label: "Settings", icon: Settings },
     ];
 

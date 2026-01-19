@@ -1,23 +1,23 @@
 "use client"
 import RichTextEditor from "@/app/components/sharedItems/RichTextEditor/RichTextEditor";
+import SimpleLoader from "@/app/components/sharedItems/SimpleLoader/SimpleLoader";
 import axiosInstance from "@/app/lib/AxiosInstance/AxiosInstance";
 import {
-    AlertCircle,
-    CheckCircle,
-    ChevronLeft,
-    ChevronRight,
-    Clock,
-    DollarSign,
-    Edit,
-    Eye,
-    Image as ImageIcon,
-    Loader2,
-    Package,
-    Plus,
-    RefreshCw,
-    Search,
-    Trash2,
-    X
+  AlertCircle,
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  DollarSign,
+  Edit,
+  Eye,
+  Image as ImageIcon,
+  Package,
+  Plus,
+  RefreshCw,
+  Search,
+  Trash2,
+  X
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -271,14 +271,7 @@ const ServicesComponents = () => {
 
   // Loading State
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto" />
-          <p className="mt-4 text-gray-600">Loading services...</p>
-        </div>
-      </div>
-    );
+    return <SimpleLoader />
   }
 
   // Error State

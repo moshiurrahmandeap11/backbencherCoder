@@ -1,10 +1,7 @@
 "use client"
 import axiosInstance from '@/app/lib/AxiosInstance/AxiosInstance';
 import {
-  ArrowRight,
-  BarChart,
   CheckCircle,
-  Clock,
   Cloud,
   Code2,
   Database,
@@ -14,9 +11,12 @@ import {
   Server, Shield,
   Smartphone,
   Target, Users,
+  X,
   Zap
 } from 'lucide-react';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import SimpleLoader from '../../sharedItems/SimpleLoader/SimpleLoader';
 
 const Services = () => {
   const [activeService, setActiveService] = useState(null);
@@ -24,6 +24,8 @@ const Services = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
 
   // Fetch services from API
   useEffect(() => {
@@ -50,17 +52,17 @@ const Services = () => {
     fetchServices();
   }, []);
 
-  // Helper function to get icon based on title
+  // Helper function to get icon component based on title
   const getIcon = (title) => {
     const iconMap = {
-      'web': <Code2 className="w-8 h-8" />,
-      'design': <Palette className="w-8 h-8" />,
-      'mobile': <Smartphone className="w-8 h-8" />,
-      'ecommerce': <Globe className="w-8 h-8" />,
-      'cloud': <Cloud className="w-8 h-8" />,
-      'security': <Shield className="w-8 h-8" />,
-      'database': <Database className="w-8 h-8" />,
-      'api': <Server className="w-8 h-8" />,
+      'web': Code2,
+      'design': Palette,
+      'mobile': Smartphone,
+      'ecommerce': Globe,
+      'cloud': Cloud,
+      'security': Shield,
+      'database': Database,
+      'api': Server,
     };
 
     const titleLower = title?.toLowerCase() || '';
@@ -74,7 +76,12 @@ const Services = () => {
     if (titleLower.includes('database')) return iconMap.database;
     if (titleLower.includes('api')) return iconMap.api;
     
-    return <Code2 className="w-8 h-8" />;
+    return Code2;
+  };
+
+  // Helper function to render icon
+  const renderIcon = (IconComponent, className = "w-8 h-8") => {
+    return <IconComponent className={className} />;
   };
 
   // Helper function to get color based on index
@@ -116,26 +123,28 @@ const Services = () => {
     return "4-6 Weeks";
   };
 
-  // Service categories based on actual services
-  const serviceCategories = [
-    { name: "All", count: services.length },
-    { name: "Development", count: services.filter(s => 
-      s.title?.toLowerCase().includes('web') || 
-      s.title?.toLowerCase().includes('mobile') || 
-      s.title?.toLowerCase().includes('api')).length 
-    },
-    { name: "Design", count: services.filter(s => 
-      s.title?.toLowerCase().includes('design') || 
-      s.title?.toLowerCase().includes('ui')).length 
-    },
-    { name: "Infrastructure", count: services.filter(s => 
-      s.title?.toLowerCase().includes('cloud') || 
-      s.title?.toLowerCase().includes('database')).length 
-    },
-    { name: "Security", count: services.filter(s => 
-      s.title?.toLowerCase().includes('security')).length 
-    }
-  ];
+  // Get image URL
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    // Remove leading slash if present and construct full URL
+    const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+    return `${axiosInstance.defaults.baseURL}${cleanPath}`;
+  };
+
+  // Handle view details click
+  const handleViewDetails = (service, e) => {
+    e?.stopPropagation();
+    setSelectedService(service);
+    setShowModal(true);
+    document.body.style.overflow = 'hidden';
+  };
+
+  // Close modal
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedService(null);
+    document.body.style.overflow = 'auto';
+  };
 
   const processSteps = [
     { step: 1, title: "Consultation", description: "Understand your requirements", icon: <Users className="w-6 h-6" /> },
@@ -146,18 +155,11 @@ const Services = () => {
     { step: 6, title: "Support", description: "Ongoing maintenance", icon: <Headphones className="w-6 h-6" /> }
   ];
 
-  const selectedService = services.find(service => service._id === activeService);
+  const featuredService = services.find(service => service._id === activeService);
 
   // Loading state
   if (loading) {
-    return (
-      <section className="py-16 md:py-24 bg-gradient-to-b from-[#051320] via-[#0a1a2d] to-[#051320]">
-        <div className="container mx-auto px-4 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#D9FDA3] mx-auto"></div>
-          <p className="text-gray-300 mt-4">Loading services...</p>
-        </div>
-      </section>
-    );
+    return <SimpleLoader />
   }
 
   // Error state
@@ -202,295 +204,337 @@ const Services = () => {
     );
   }
 
-  return (
-    <section className="py-16 md:py-24 bg-gradient-to-b from-[#051320] via-[#0a1a2d] to-[#051320]">
-      <div className="container mx-auto px-4">
-        {/* Header Section */}
-        <div className="text-center mb-12 md:mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#D9FDA3]/10 border border-[#D9FDA3]/20 mb-4">
-            <Zap className="w-4 h-4 text-[#D9FDA3]" />
-            <span className="text-[#D9FDA3] text-sm font-medium">Our Services</span>
-          </div>
-          
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-            Solutions That <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#D9FDA3] to-cyan-400">Drive Growth</span>
-          </h2>
-          
-          <p className="text-gray-300 text-lg md:text-xl max-w-3xl mx-auto">
-            Comprehensive digital solutions tailored to meet your business needs and exceed expectations
-          </p>
-        </div>
+  // Service Modal Component
+  const ServiceModal = () => {
+    if (!selectedService) return null;
 
-        {/* Service Categories */}
-        <div className="flex flex-wrap justify-center gap-3 mb-8 md:mb-12">
-          {serviceCategories.map((category) => (
-            <button
-              key={category.name}
-              className="group relative px-5 py-3 rounded-full bg-white/5 hover:bg-white/10 transition-all duration-300"
-            >
-              <span className="text-gray-300 group-hover:text-white font-medium">
-                {category.name}
-              </span>
-              <span className="ml-2 px-2 py-1 rounded-full bg-[#D9FDA3]/10 text-[#D9FDA3] text-xs font-semibold">
-                {category.count}
-              </span>
-            </button>
-          ))}
-        </div>
+    const color = getColor(services.findIndex(s => s._id === selectedService._id));
+    const IconComponent = getIcon(selectedService.title);
+    const hasImage = selectedService.images && selectedService.images.length > 0;
+    const imageUrl = hasImage ? getImageUrl(selectedService.images[0]) : null;
+    const deliveryTime = selectedService.deliveryTime || getDeliveryTime(selectedService.price);
+    const projectsCount = getProjectsCount(services.findIndex(s => s._id === selectedService._id));
 
-        {/* Services Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12 md:mb-16">
-          {services.map((service, index) => {
-            const color = getColor(index);
-            const icon = getIcon(service.title);
-            const projectsCount = getProjectsCount(index);
-            const deliveryTime = service.deliveryTime || getDeliveryTime(service.price);
-            const priceDisplay = service.price ? formatPrice(service.price) : "Custom Quote";
-            
-            return (
-              <div
-                key={service._id}
-                className="group"
-                onMouseEnter={() => setHoveredCard(service._id)}
-                onMouseLeave={() => setHoveredCard(null)}
-                onClick={() => setActiveService(service._id)}
-              >
-                <div className={`h-full rounded-2xl border-2 transition-all duration-500 cursor-pointer ${
-                  activeService === service._id 
-                    ? `${color.border} bg-gradient-to-br from-white/10 to-transparent scale-[1.02] shadow-2xl shadow-current/10` 
-                    : hoveredCard === service._id 
-                      ? 'border-white/20 bg-white/5 scale-[1.01]' 
-                      : 'border-white/10 bg-white/5'
-                }`}>
-                  {/* Icon */}
-                  <div className="p-6">
-                    <div className={`w-16 h-16 rounded-2xl ${color.bg} flex items-center justify-center mb-4`}>
-                      <div className={`bg-gradient-to-br ${color.gradient} bg-clip-text text-transparent`}>
-                        {icon}
-                      </div>
-                    </div>
-                    
-                    {/* Title */}
-                    <h3 className="text-xl font-bold text-white mb-2">{service.title || "Unnamed Service"}</h3>
-                    
-                    {/* Description */}
-                    <p className="text-gray-300 text-sm mb-4 line-clamp-2">
-                      {service.description?.replace(/<[^>]*>/g, '').substring(0, 100) || "No description available"}
-                    </p>
-                    
-                    {/* Features */}
-                    {service.features && service.features.length > 0 && (
-                      <div className="space-y-2 mb-6">
-                        {service.features.slice(0, 3).map((feature, idx) => (
-                          <div key={idx} className="flex items-center gap-2">
-                            <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${color.gradient}`} />
-                            <span className="text-gray-300 text-sm">
-                              {typeof feature === 'string' ? feature.substring(0, 20) : 'Feature'}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    
-                    {/* Stats */}
-                    <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                      <div className="text-center">
-                        <div className="text-white font-bold">{projectsCount}</div>
-                        <div className="text-gray-400 text-xs">Projects</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-white font-bold">{deliveryTime}</div>
-                        <div className="text-gray-400 text-xs">Delivery</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-white font-bold">{priceDisplay}</div>
-                        <div className="text-gray-400 text-xs">Price</div>
-                      </div>
-                    </div>
+    return (
+      <div 
+        className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50 p-2 md:p-4"
+        onClick={closeModal}
+      >
+        <div 
+          className="bg-gradient-to-br from-[#051320] to-[#0a1a2d] rounded-xl md:rounded-2xl lg:rounded-3xl shadow-2xl w-full max-w-2xl lg:max-w-4xl max-h-[90vh] overflow-y-auto border border-white/10"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="p-4 md:p-6 lg:p-8">
+            {/* Modal Header */}
+            <div className="flex justify-between items-start mb-4 md:mb-6">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl ${color.bg} flex items-center justify-center`}>
+                  <div className={`bg-gradient-to-br ${color.gradient} bg-clip-text text-transparent`}>
+                    {renderIcon(IconComponent, "w-6 h-6 md:w-8 md:h-8")}
                   </div>
-                  
-                  {/* Action Button */}
-                  <div className="px-6 pb-6">
-                    <button className={`w-full py-3 rounded-xl font-semibold transition-all duration-300 ${
-                      activeService === service._id
-                        ? 'bg-gradient-to-r from-[#D9FDA3] to-cyan-400 text-[#051320] hover:shadow-lg hover:shadow-[#D9FDA3]/20'
-                        : 'bg-white/5 text-white hover:bg-white/10'
-                    }`}>
-                      View Details
-                    </button>
+                </div>
+                <div>
+                  <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-white line-clamp-1">
+                    {selectedService.title || "Unnamed Service"}
+                  </h2>
+                  <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mt-1">
+                    <span className="text-gray-400 text-xs md:text-sm">Service Details</span>
                   </div>
                 </div>
               </div>
-            );
-          })}
-        </div>
+              <button 
+                onClick={closeModal}
+                className="p-1.5 md:p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4 md:w-5 md:h-5 text-white" />
+              </button>
+            </div>
 
-        {/* Featured Service Details */}
-        {selectedService && (
-          <div className="mb-12 md:mb-16">
-            <div className="rounded-3xl overflow-hidden bg-gradient-to-r from-[#051320] via-[#0a1a2d] to-[#051320] border border-white/10">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
-                {/* Left Side - Details */}
-                <div>
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className={`w-12 h-12 rounded-xl ${getColor(services.findIndex(s => s._id === selectedService._id)).bg} flex items-center justify-center`}>
-                      <div className={`bg-gradient-to-br ${getColor(services.findIndex(s => s._id === selectedService._id)).gradient} bg-clip-text text-transparent`}>
-                        {getIcon(selectedService.title)}
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-bold text-white">{selectedService.title || "Unnamed Service"}</h3>
-                      <div className="flex items-center gap-4 mt-2">
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4 text-[#D9FDA3]" />
-                          <span className="text-gray-300 text-sm">
-                            {selectedService.deliveryTime || getDeliveryTime(selectedService.price)}
-                          </span>
+            {/* Service Content */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 lg:gap-8">
+              {/* Left Column - Images */}
+              <div>
+                <div className="rounded-xl md:rounded-2xl overflow-hidden bg-gradient-to-br from-gray-900 to-black mb-3 md:mb-4">
+                  {hasImage && imageUrl ? (
+                    <img 
+                      src={imageUrl}
+                      alt={selectedService.title}
+                      className="w-full h-48 md:h-56 object-cover"
+                      loading="lazy"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        // Create a new div with icon fallback
+                        const fallbackDiv = document.createElement('div');
+                        fallbackDiv.className = 'w-full h-48 md:h-56 flex flex-col items-center justify-center';
+                        fallbackDiv.innerHTML = `
+                          <div class="w-16 h-16 rounded-xl ${color.bg} flex items-center justify-center mb-3">
+                            <div class="bg-gradient-to-br ${color.gradient} bg-clip-text text-transparent">
+                              ${renderIcon(IconComponent, "w-10 h-10").props ? '' : '<Code2 className="w-10 h-10" />'}
+                            </div>
+                          </div>
+                          <div class="text-white text-lg font-bold">${selectedService.title}</div>
+                        `;
+                        e.target.parentElement.appendChild(fallbackDiv);
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-48 md:h-56 flex flex-col items-center justify-center">
+                      <div className={`w-16 h-16 rounded-xl ${color.bg} flex items-center justify-center mb-3`}>
+                        <div className={`bg-gradient-to-br ${color.gradient} bg-clip-text text-transparent`}>
+                          {renderIcon(IconComponent, "w-10 h-10")}
                         </div>
-                        <div className="flex items-center gap-1">
-                          <BarChart className="w-4 h-4 text-[#D9FDA3]" />
-                          <span className="text-gray-300 text-sm">
-                            {getProjectsCount(services.findIndex(s => s._id === selectedService._id))} projects
-                          </span>
-                        </div>
                       </div>
+                      <div className="text-white text-lg font-bold">{selectedService.title}</div>
                     </div>
+                  )}
+                </div>
+                
+                {/* Stats */}
+                <div className="grid grid-cols-3 gap-3 mb-3 md:mb-4">
+                  <div className="text-center p-3 rounded-lg bg-white/5">
+                    <div className="text-lg md:text-xl font-bold text-white">{projectsCount}</div>
+                    <div className="text-gray-400 text-xs">Projects Done</div>
                   </div>
-                  
-                  <p 
-                    className="text-gray-300 text-lg mb-6"
+                  <div className="text-center p-3 rounded-lg bg-white/5">
+                    <div className="text-lg md:text-xl font-bold text-white">{deliveryTime}</div>
+                    <div className="text-gray-400 text-xs">Delivery Time</div>
+                  </div>
+                  <div className="text-center p-3 rounded-lg bg-white/5">
+                    <div className="text-lg md:text-xl font-bold text-white">
+                      {selectedService.price ? formatPrice(selectedService.price) : "Custom"}
+                    </div>
+                    <div className="text-gray-400 text-xs">Starting Price</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column - Details */}
+              <div className="space-y-4 md:space-y-6">
+                {/* Description */}
+                <div>
+                  <h3 className="text-base md:text-lg font-semibold text-white mb-2 md:mb-3">Description</h3>
+                  <div 
+                    className="text-gray-300 text-sm md:text-base"
                     dangerouslySetInnerHTML={{ 
-                      __html: selectedService.description?.replace(/<[^>]*>/g, '') || "No description available" 
+                      __html: selectedService.description || "No description available" 
                     }}
                   />
-                  
-                  {selectedService.features && selectedService.features.length > 0 && (
-                    <div className="grid grid-cols-2 gap-4 mb-8">
-                      {selectedService.features.slice(0, 4).map((feature, index) => (
-                        <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
-                          <CheckCircle className="w-5 h-5 text-[#D9FDA3]" />
-                          <span className="text-white">{typeof feature === 'string' ? feature.substring(0, 30) : 'Feature'}</span>
+                </div>
+
+                {/* Features */}
+                {selectedService.features && selectedService.features.length > 0 && (
+                  <div>
+                    <h3 className="text-base md:text-lg font-semibold text-white mb-2 md:mb-3">Features</h3>
+                    <div className="space-y-1.5 md:space-y-2">
+                      {selectedService.features.map((feature, index) => (
+                        <div key={index} className="flex items-start gap-2 p-2 md:p-3 rounded-lg bg-white/5">
+                          <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-[#D9FDA3] shrink-0 mt-0.5" />
+                          <span className="text-gray-300 text-sm md:text-base">{feature}</span>
                         </div>
                       ))}
                     </div>
-                  )}
-                  
-                  <div className="flex flex-wrap gap-4">
-                    <button className="px-6 py-3 bg-gradient-to-r from-[#D9FDA3] to-cyan-400 text-[#051320] rounded-xl font-semibold hover:shadow-lg hover:shadow-[#D9FDA3]/20 transition-all duration-300">
-                      Get Started Now
-                    </button>
-                    <button className="px-6 py-3 bg-white/5 text-white rounded-xl font-semibold hover:bg-white/10 transition-all duration-300 border border-white/10">
-                      Request Quote
-                    </button>
                   </div>
-                </div>
-                
-                {/* Right Side - Process */}
+                )}
+
+                {/* Process Steps */}
                 <div>
-                  <h4 className="text-xl font-bold text-white mb-6">Our Process</h4>
-                  <div className="space-y-4">
-                    {processSteps.map((step) => (
-                      <div key={step.step} className="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-300">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#D9FDA3] to-cyan-400 flex items-center justify-center font-bold text-[#051320]">
+                  <h3 className="text-base md:text-lg font-semibold text-white mb-2 md:mb-3">Our Process</h3>
+                  <div className="space-y-2">
+                    {processSteps.slice(0, 4).map((step) => (
+                      <div key={step.step} className="flex items-center gap-3 p-2 rounded-lg bg-white/5">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#D9FDA3] to-cyan-400 flex items-center justify-center font-bold text-[#051320] text-sm">
                           {step.step}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center justify-between">
-                            <h5 className="font-semibold text-white">{step.title}</h5>
+                            <h5 className="font-medium text-white text-sm">{step.title}</h5>
                             <div className="text-[#D9FDA3]">
                               {step.icon}
                             </div>
                           </div>
-                          <p className="text-gray-300 text-sm">{step.description}</p>
+                          <p className="text-gray-300 text-xs">{step.description}</p>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
 
-        {/* Testimonials */}
-        <div className="mb-12 md:mb-16">
-          <h3 className="text-2xl font-bold text-white text-center mb-8">What Our Clients Say</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                name: "Sarah Johnson",
-                role: "CEO, TechVision",
-                content: "The web development service exceeded our expectations. Professional team, on-time delivery, and exceptional quality.",
-                rating: 5
-              },
-              {
-                name: "Michael Chen",
-                role: "Product Manager, InnovateCo",
-                content: "Outstanding UI/UX design work. They understood our vision perfectly and delivered beyond what we imagined.",
-                rating: 5
-              },
-              {
-                name: "Emma Williams",
-                role: "CTO, CloudScale",
-                content: "Their cloud migration services saved us 40% in infrastructure costs. Highly recommended!",
-                rating: 5
-              }
-            ].map((testimonial, index) => (
-              <div key={index} className="p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10">
-                <div className="flex items-center gap-1 mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <div key={i} className="w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-[#051320] rounded-full" />
-                    </div>
-                  ))}
-                </div>
-                <p className="text-gray-300 mb-6">{testimonial.content}</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[#D9FDA3] to-cyan-400" />
-                  <div>
-                    <div className="font-semibold text-white">{testimonial.name}</div>
-                    <div className="text-gray-400 text-sm">{testimonial.role}</div>
+                {/* Action Buttons */}
+                <div className="pt-4 border-t border-white/10">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Link href="/contact" className="flex-1">
+                      <button className="w-full py-2.5 md:py-3 bg-gradient-to-r from-[#D9FDA3] to-cyan-400 text-[#051320] rounded-lg md:rounded-xl font-semibold hover:shadow-lg hover:shadow-[#D9FDA3]/20 transition-all duration-300 text-sm md:text-base">
+                        Get Started Now
+                      </button>
+                    </Link>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* CTA Section */}
-        <div className="text-center">
-          <div className="inline-block rounded-2xl bg-gradient-to-r from-[#D9FDA3]/10 to-cyan-400/10 border border-[#D9FDA3]/20 p-1 mb-8">
-            <div className="rounded-xl bg-[#051320] px-8 py-6">
-              <h3 className="text-2xl font-bold text-white mb-3">Ready to Transform Your Business?</h3>
-              <p className="text-gray-300 mb-6">Let's discuss your project and create something amazing together</p>
-              <button className="group px-8 py-3.5 bg-gradient-to-r from-[#D9FDA3] to-cyan-400 text-[#051320] rounded-full font-semibold hover:shadow-2xl hover:shadow-[#D9FDA3]/30 transition-all duration-300 flex items-center gap-3 mx-auto">
-                <span>Start Your Project</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
             </div>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12">
-            {[
-              { value: "24/7", label: "Support", icon: <Headphones className="w-6 h-6" /> },
-              { value: "100%", label: "Satisfaction", icon: <CheckCircle className="w-6 h-6" /> },
-              { value: "99.9%", label: "Uptime", icon: <Zap className="w-6 h-6" /> },
-              { value: `${services.length * 10}+`, label: "Happy Clients", icon: <Users className="w-6 h-6" /> }
-            ].map((stat, index) => (
-              <div key={index} className="text-center p-4">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-[#D9FDA3]/10 to-cyan-400/10 mb-3">
-                  <div className="text-[#D9FDA3]">
-                    {stat.icon}
-                  </div>
-                </div>
-                <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
-                <div className="text-gray-300 text-sm">{stat.label}</div>
-              </div>
-            ))}
           </div>
         </div>
       </div>
-    </section>
+    );
+  };
+
+  return (
+    <>
+      <section className="py-16 md:py-24 bg-gradient-to-b from-[#051320] via-[#0a1a2d] to-[#051320]">
+        <div className="container mx-auto px-4">
+          {/* Header Section */}
+          <div className="text-center mb-12 md:mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#D9FDA3]/10 border border-[#D9FDA3]/20 mb-4">
+              <Zap className="w-4 h-4 text-[#D9FDA3]" />
+              <span className="text-[#D9FDA3] text-sm font-medium">Our Services</span>
+            </div>
+            
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+              Solutions That <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#D9FDA3] to-cyan-400">Drive Growth</span>
+            </h2>
+            
+            <p className="text-gray-300 text-lg md:text-xl max-w-3xl mx-auto">
+              Comprehensive digital solutions tailored to meet your business needs and exceed expectations
+            </p>
+          </div>
+
+          {/* Services Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12 md:mb-16">
+            {services.map((service, index) => {
+              const color = getColor(index);
+              const IconComponent = getIcon(service.title);
+              const projectsCount = getProjectsCount(index);
+              const deliveryTime = service.deliveryTime || getDeliveryTime(service.price);
+              const priceDisplay = service.price ? formatPrice(service.price) : "Custom Quote";
+              const hasImage = service.images && service.images.length > 0;
+              const imageUrl = hasImage ? getImageUrl(service.images[0]) : null;
+              
+              return (
+                <div
+                  key={service._id}
+                  className="group"
+                  onMouseEnter={() => setHoveredCard(service._id)}
+                  onMouseLeave={() => setHoveredCard(null)}
+                  onClick={() => setActiveService(service._id)}
+                >
+                  <div className={`h-full rounded-2xl border-2 transition-all duration-500 cursor-pointer ${
+                    activeService === service._id 
+                      ? `${color.border} bg-gradient-to-br from-white/10 to-transparent scale-[1.02] shadow-2xl shadow-current/10` 
+                      : hoveredCard === service._id 
+                        ? 'border-white/20 bg-white/5 scale-[1.01]' 
+                        : 'border-white/10 bg-white/5'
+                  }`}>
+                    {/* Image Section */}
+                    <div className="relative h-40 overflow-hidden rounded-t-2xl">
+                      {hasImage && imageUrl ? (
+                        <>
+                          <img 
+                            src={imageUrl}
+                            alt={service.title}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            loading="lazy"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              // Show icon fallback
+                              const fallbackDiv = document.createElement('div');
+                              fallbackDiv.className = 'absolute inset-0 bg-gradient-to-br from-gray-900 to-black flex items-center justify-center';
+                              fallbackDiv.innerHTML = `
+                                <div class="w-16 h-16 rounded-2xl ${color.bg} flex items-center justify-center">
+                                  <div class="bg-gradient-to-br ${color.gradient} bg-clip-text text-transparent">
+                                    ${renderIcon(IconComponent, "w-10 h-10").props ? '' : '<Code2 className="w-10 h-10" />'}
+                                  </div>
+                                </div>
+                              `;
+                              e.target.parentElement.appendChild(fallbackDiv);
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                        </>
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
+                          <div className={`w-16 h-16 rounded-2xl ${color.bg} flex items-center justify-center`}>
+                            <div className={`bg-gradient-to-br ${color.gradient} bg-clip-text text-transparent`}>
+                              {renderIcon(IconComponent, "w-10 h-10")}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="p-6">
+                      {/* Icon (only show if no image) */}
+                      {!hasImage && (
+                        <div className={`w-12 h-12 rounded-xl ${color.bg} flex items-center justify-center mb-4`}>
+                          <div className={`bg-gradient-to-br ${color.gradient} bg-clip-text text-transparent`}>
+                            {renderIcon(IconComponent, "w-6 h-6")}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Title */}
+                      <h3 className="text-xl font-bold text-white mb-2">{service.title || "Unnamed Service"}</h3>
+                      
+                      {/* Description */}
+                      <p className="text-gray-300 text-sm mb-4 line-clamp-2">
+                        {service.description?.replace(/<[^>]*>/g, '').substring(0, 100) || "No description available"}
+                      </p>
+                      
+                      {/* Features */}
+                      {service.features && service.features.length > 0 && (
+                        <div className="space-y-2 mb-6">
+                          {service.features.slice(0, 3).map((feature, idx) => (
+                            <div key={idx} className="flex items-center gap-2">
+                              <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${color.gradient}`} />
+                              <span className="text-gray-300 text-sm">
+                                {typeof feature === 'string' ? feature.substring(0, 20) : 'Feature'}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {/* Stats */}
+                      <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                        <div className="text-center">
+                          <div className="text-white font-bold">{projectsCount}</div>
+                          <div className="text-gray-400 text-xs">Projects</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-white font-bold">{deliveryTime}</div>
+                          <div className="text-gray-400 text-xs">Delivery</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-white font-bold">{priceDisplay}</div>
+                          <div className="text-gray-400 text-xs">Price</div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Action Button */}
+                    <div className="px-6 pb-6">
+                      <button 
+                        onClick={(e) => handleViewDetails(service, e)}
+                        className={`w-full py-3 rounded-xl font-semibold transition-all duration-300 ${
+                          activeService === service._id
+                            ? 'bg-gradient-to-r from-[#D9FDA3] to-cyan-400 text-[#051320] hover:shadow-lg hover:shadow-[#D9FDA3]/20'
+                            : 'bg-white/5 text-white hover:bg-white/10'
+                        }`}
+                      >
+                        View Details
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Service Details Modal */}
+      {showModal && <ServiceModal />}
+    </>
   );
 };
 

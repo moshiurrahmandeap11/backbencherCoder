@@ -2,6 +2,7 @@
 
 import { Settings } from "lucide-react";
 import ProductsComponents from "../AdminSidebar/ProductsComponents/ProductsComponents";
+import ServicesComponents from "../AdminSidebar/ServicesComponents/ServicesComponents";
 import UsersComponents from "../AdminSidebar/UsersComponents/UsersComponents";
 
 const AdminMainComponents = ({ activeComponent }) => {
@@ -18,7 +19,7 @@ const AdminMainComponents = ({ activeComponent }) => {
       case "products":
         return <ProductsComponents />
       case "services":
-        return <ServicesComponent />;
+        return <ServicesComponents />;
       case "settings":
         return <SettingsComponent />;
       default:
@@ -45,10 +46,6 @@ const DashboardComponent = ({ stats, recentUsers }) => (
     </div>
   </main>
 );
-
-const ProductsComponent = () => <div>rahman</div>;
-
-const ServicesComponent = () => <div>deap</div>;
 
 const AnalyticsComponent = () => <div>rahat</div>;
 

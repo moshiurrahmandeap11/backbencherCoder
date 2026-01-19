@@ -1,11 +1,11 @@
 "use client"
 import {
-    createUserWithEmailAndPassword,
-    GoogleAuthProvider,
-    onAuthStateChanged,
-    signInWithEmailAndPassword,
-    signInWithPopup,
-    signOut,
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
 } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { AuthContext } from "../../contexts/AuthContext/AuthContext";
@@ -56,6 +56,7 @@ const AuthProvider = ({ children }) => {
     setUser,
     loading,
     setLoading,
+    logIn,
     googleLogin,
     createUser,
     logOut,

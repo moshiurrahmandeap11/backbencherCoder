@@ -21,6 +21,7 @@ const Navbar = () => {
   const { user, logOut, loading } = useAuth();
   const router = useRouter();
   const profileRef = useRef(null);
+  const mobileMenuRef = useRef(null);
 
   // Close profile dropdown when clicking outside
   useEffect(() => {
@@ -28,10 +29,29 @@ const Navbar = () => {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
         setIsProfileOpen(false);
       }
+      // Close mobile menu when clicking outside
+      if (mobileMenuRef.current && 
+          !mobileMenuRef.current.contains(event.target) &&
+          !event.target.closest('.mobile-menu-button')) {
+        setIsMobileMenuOpen(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Handle escape key to close menus
+  useEffect(() => {
+    const handleEscapeKey = (event) => {
+      if (event.key === 'Escape') {
+        setIsMobileMenuOpen(false);
+        setIsProfileOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+    return () => document.removeEventListener('keydown', handleEscapeKey);
   }, []);
 
   useEffect(() => {
@@ -50,9 +70,17 @@ const Navbar = () => {
 
   // Disable body scroll when mobile menu is open
   useEffect(() => {
-    document.body.style.overflow = isMobileMenuOpen ? 'hidden' : 'unset';
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+    } else {
+      document.body.style.overflow = 'unset';
+      document.body.style.position = 'static';
+    }
     return () => {
       document.body.style.overflow = 'unset';
+      document.body.style.position = 'static';
     };
   }, [isMobileMenuOpen]);
 
@@ -75,7 +103,6 @@ const Navbar = () => {
           const profileImage = response.data.data.profileImage;
           
           if (profileImage && !profileImage.startsWith('http')) {
-
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
             setUserProfileImage(`${baseUrl}${profileImage}`);
           } else {
@@ -163,7 +190,7 @@ const Navbar = () => {
 
     if (isLoadingProfile) {
       return (
-        <div className={`${container} rounded-full bg-linear-to-r from-[#D9FDA3] to-cyan-400 flex items-center justify-center ${className}`}>
+        <div className={`${container} rounded-full bg-gradient-to-r from-[#D9FDA3] to-cyan-400 flex items-center justify-center ${className}`}>
           <div className="w-4 h-4 border-2 border-[#051320] border-t-transparent rounded-full animate-spin" />
         </div>
       );
@@ -171,7 +198,7 @@ const Navbar = () => {
 
     if (userProfileImage) {
       return (
-        <div className={`${container} rounded-full bg-linear-to-r from-[#D9FDA3] to-cyan-400 p-0.5 ${className}`}>
+        <div className={`${container} rounded-full bg-gradient-to-r from-[#D9FDA3] to-cyan-400 p-0.5 ${className}`}>
           <div className="w-full h-full rounded-full overflow-hidden relative">
             <Image 
               src={userProfileImage} 
@@ -190,7 +217,7 @@ const Navbar = () => {
     // Firebase photoURL (fallback)
     if (user?.photoURL) {
       return (
-        <div className={`${container} rounded-full bg-linear-to-r from-[#D9FDA3] to-cyan-400 p-0.5 ${className}`}>
+        <div className={`${container} rounded-full bg-gradient-to-r from-[#D9FDA3] to-cyan-400 p-0.5 ${className}`}>
           <div className="w-full h-full rounded-full overflow-hidden relative">
             <Image 
               src={user.photoURL} 
@@ -207,7 +234,7 @@ const Navbar = () => {
 
     // Default avatar
     return (
-      <div className={`${container} rounded-full bg-linear-to-r from-[#D9FDA3] to-cyan-400 flex items-center justify-center ${className}`}>
+      <div className={`${container} rounded-full bg-gradient-to-r from-[#D9FDA3] to-cyan-400 flex items-center justify-center ${className}`}>
         <div className={`${icon} text-[#051320]`}>
           <User className="w-full h-full" />
         </div>
@@ -224,7 +251,7 @@ const Navbar = () => {
       {/* Blur overlay */}
       {isMobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden transition-all duration-300"
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 md:hidden transition-all duration-300"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
@@ -282,12 +309,23 @@ const Navbar = () => {
 
             {/* Right Side - User Profile or Login Button */}
             <div className="flex items-center gap-4">
+              {/* Mobile Login Button (Always visible when not logged in) */}
+              {!user ? (
+                <div className="md:hidden">
+                  <Link href="/auth/login">
+                    <button className="bg-gradient-to-r from-[#D9FDA3] to-cyan-400 text-[#051320] px-4 py-2 rounded-full font-semibold hover:opacity-90 transition-all duration-200 hover:scale-105 active:scale-95 text-sm">
+                      Grab It
+                    </button>
+                  </Link>
+                </div>
+              ) : null}
+
               {user ? (
                 // User Profile Dropdown
                 <div className="relative" ref={profileRef}>
                   <button
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
-                    className="flex items-center gap-2 p-1.5 rounded-full bg-linear-to-r from-[#D9FDA3]/10 to-cyan-400/10 hover:from-[#D9FDA3]/20 hover:to-cyan-400/20 transition-all duration-300 border border-white/10"
+                    className="flex items-center gap-2 p-1.5 rounded-full bg-gradient-to-r from-[#D9FDA3]/10 to-cyan-400/10 hover:from-[#D9FDA3]/20 hover:to-cyan-400/20 transition-all duration-300 border border-white/10"
                   >
                     {/* User Avatar from Database */}
                     {renderAvatar('small')}
@@ -297,7 +335,7 @@ const Navbar = () => {
 
                   {/* Profile Dropdown Menu */}
                   {isProfileOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-56 rounded-xl bg-linear-to-br from-white/5 to-transparent backdrop-blur-sm border border-white/10 shadow-2xl shadow-black/30 overflow-hidden z-50">
+                    <div className="absolute right-0 top-full mt-2 w-56 rounded-xl bg-gradient-to-br from-white/5 to-transparent backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden z-50">
                       {/* User Info */}
                       <div className="p-4 border-b border-white/10">
                         <div className="flex items-center gap-3">
@@ -346,10 +384,10 @@ const Navbar = () => {
                   )}
                 </div>
               ) : (
-                // Login Button (Desktop)
+                // Desktop Login Button
                 <div className="hidden md:block">
                   <Link href="/auth/login">
-                    <button className="bg-linear-to-r from-[#D9FDA3] to-cyan-400 text-[#051320] px-6 py-2 rounded-full font-semibold hover:opacity-90 transition-all duration-200 hover:scale-105 active:scale-95">
+                    <button className="bg-gradient-to-r from-[#D9FDA3] to-cyan-400 text-[#051320] px-6 py-2 rounded-full font-semibold hover:opacity-90 transition-all duration-200 hover:scale-105 active:scale-95">
                       Grab It
                     </button>
                   </Link>
@@ -360,7 +398,7 @@ const Navbar = () => {
               <div className="md:hidden">
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  className="mobile-menu-button text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
                 >
                   {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
@@ -369,55 +407,56 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Menu - Left Side Slide */}
-        <div className={`md:hidden fixed top-0 left-0 h-full w-3/4 max-w-sm z-50 transition-all duration-500 ease-in-out ${
-          isMobileMenuOpen 
-            ? 'translate-x-0 opacity-100' 
-            : '-translate-x-full opacity-0'
-        }`}>
-          <div className="h-full bg-linear-to-b from-[#051320] to-[#0a1a2d] border-r border-white/10 shadow-2xl overflow-y-auto">
-            <div className="p-6">
-              {/* User Info in Mobile Menu */}
-              {user && (
-                <div className="mb-6 p-4 rounded-xl bg-linear-to-r from-[#D9FDA3]/10 to-cyan-400/10 border border-white/10">
-                  <div className="flex items-center gap-3">
-                    {/* Mobile Avatar */}
-                    {renderAvatar('large', 'flex-shrink-0')}
-                    
-                    <div className="min-w-0">
-                      <p className="font-semibold text-white truncate">
+        {/* Mobile Menu - Full Screen Slide */}
+        <div 
+          ref={mobileMenuRef}
+          className={`md:hidden fixed top-0 left-0 h-full w-full max-w-sm z-50 transition-all duration-300 ease-in-out ${
+            isMobileMenuOpen 
+              ? 'translate-x-0 opacity-100' 
+              : '-translate-x-full opacity-0 pointer-events-none'
+          }`}
+        >
+          <div className="h-full bg-gradient-to-b from-[#051320] via-[#0a1a2d] to-[#0a1a2d] border-r border-white/10 shadow-2xl overflow-y-auto">
+            {/* Mobile Menu Header */}
+            <div className="sticky top-0 bg-[#051320] border-b border-white/10 p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {user ? (
+                  <>
+                    {renderAvatar('medium', 'flex-shrink-0')}
+                    <div>
+                      <p className="font-semibold text-white truncate text-sm">
                         {user.displayName || user.email?.split('@')[0] || 'User'}
                       </p>
-                      <p className="text-gray-400 text-sm truncate">
+                      <p className="text-gray-400 text-xs truncate">
                         {user.email || 'No email'}
                       </p>
-                      <p className="text-gray-500 text-xs truncate mt-1">
-                        ID: {getUserId().substring(0, 8)}...
-                      </p>
-                      
-                      {/* Profile image source info */}
-                      <div className="mt-2">
-                        <p className="text-gray-600 text-xs">
-                          {isLoadingProfile ? 'Loading profile...' : 
-                           userProfileImage ? 'Profile from database' : 
-                           user?.photoURL ? 'Profile from Firebase' : 
-                           'Default avatar'}
-                        </p>
-                      </div>
                     </div>
+                  </>
+                ) : (
+                  <div className="text-[#D9FDA3]">
+                    <User className="w-8 h-8" />
                   </div>
-                </div>
-              )}
+                )}
+              </div>
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
 
+            {/* Mobile Menu Content */}
+            <div className="p-6">
               {/* Navigation Items */}
-              <div className="flex flex-col space-y-2">
+              <div className="flex flex-col space-y-1 mb-6">
                 {navItems.map((item) => (
                   <Link
                     key={item.path}
                     href={item.path}
                     className={`px-4 py-3 rounded-lg transition-all duration-200 ${
                       activeNav === item.path
-                        ? 'bg-linear-to-r from-[#D9FDA3] to-cyan-400 text-[#051320]'
+                        ? 'bg-gradient-to-r from-[#D9FDA3] to-cyan-400 text-[#051320] font-semibold'
                         : 'text-white hover:bg-white/10 hover:text-[#D9FDA3]'
                     }`}
                     onClick={() => {
@@ -433,15 +472,20 @@ const Navbar = () => {
                     </div>
                   </Link>
                 ))}
+              </div>
 
-                {/* User Menu Items in Mobile */}
-                {user ? (
-                  <>
+              {/* User Menu Items in Mobile */}
+              {user ? (
+                <>
+                  <div className="border-t border-white/10 pt-6 mb-6">
+                    <h3 className="text-gray-400 text-sm font-semibold uppercase tracking-wider px-4 mb-2">
+                      Account
+                    </h3>
                     {profileItems.map((item) => (
                       <button
                         key={item.label}
                         onClick={() => handleProfileLinkClick(item.path)}
-                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-colors text-left"
+                        className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-colors text-left"
                       >
                         <div className="text-[#D9FDA3]">
                           {item.icon}
@@ -449,36 +493,49 @@ const Navbar = () => {
                         <span>{item.label}</span>
                       </button>
                     ))}
-                    
+                  </div>
+                  
+                  <div className="border-t border-white/10 pt-6">
                     <button
                       onClick={() => {
                         handleLogOut();
                         setIsMobileMenuOpen(false);
                       }}
-                      className="flex items-center gap-3 px-4 py-3 rounded-lg text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
+                      className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
                     >
                       <LogOut className="w-4 h-4" />
                       <span>Log Out</span>
                     </button>
-                  </>
-                ) : (
-                  // Login Button in Mobile Menu
+                  </div>
+                </>
+              ) : (
+                // Login Button in Mobile Menu
+                <div className="border-t border-white/10 pt-6">
                   <Link 
                     href="/auth/login" 
-                    className="mt-4"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <button className="w-full bg-lilnear-to-r from-[#D9FDA3] to-cyan-400 text-[#051320] px-6 py-3 rounded-full font-semibold hover:opacity-90 transition-all duration-200 active:scale-95">
-                      Grab It
+                    <button className="w-full bg-gradient-to-r from-[#D9FDA3] to-cyan-400 text-[#051320] px-6 py-3 rounded-full font-semibold hover:opacity-90 transition-all duration-200 active:scale-95">
+                      Login to Grab It
                     </button>
                   </Link>
-                )}
-              </div>
+                  <p className="text-gray-400 text-sm text-center mt-4">
+                    Don't have an account?{' '}
+                    <Link 
+                      href="/auth/register" 
+                      className="text-[#D9FDA3] hover:underline"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Sign up
+                    </Link>
+                  </p>
+                </div>
+              )}
 
-              {/* Close Menu Info */}
+              {/* Additional Info */}
               <div className="mt-12 text-center">
-                <p className="text-white/60 text-sm">
-                  Click outside or swipe left to close
+                <p className="text-white/40 text-xs">
+                  Swipe left or tap outside to close
                 </p>
               </div>
             </div>

@@ -37,7 +37,7 @@ const SimpleLoader = () => {
         
         {/* Loading Text */}
         <div className="text-gray-400 text-sm mt-4">
-          Loading awesome content...
+          Backbencher Coder
         </div>
       </div>
     </div>

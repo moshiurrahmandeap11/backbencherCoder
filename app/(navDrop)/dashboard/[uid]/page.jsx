@@ -3,17 +3,16 @@
 import SimpleLoader from "@/app/components/sharedItems/SimpleLoader/SimpleLoader";
 import axiosInstance from "@/app/lib/AxiosInstance/AxiosInstance";
 import {
-    ArrowRight,
-    Bell,
-    Calendar,
-    CreditCard,
-    Heart,
-    HelpCircle,
-    Package,
-    Settings,
-    Shield,
-    TrendingUp,
-    User,
+  ArrowRight,
+  Bell,
+  Calendar,
+  Heart,
+  HelpCircle,
+  Package,
+  Settings,
+  Shield,
+  TrendingUp,
+  User
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -228,7 +227,7 @@ const Dashboard = () => {
           <div className="container mx-auto px-4 py-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[#D9FDA3] to-cyan-400 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-linear-to-r from-[#D9FDA3] to-cyan-400 flex items-center justify-center">
                   <span className="text-[#051320] font-bold text-lg">
                     {getInitials(user.name || user.email)}
                   </span>
@@ -302,18 +301,6 @@ const Dashboard = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <button className="w-full px-4 py-3 rounded-xl bg-white/5 text-gray-300 hover:bg-white/10 transition-colors flex items-center gap-3">
-                    <User className="w-5 h-5" />
-                    <span>Profile Settings</span>
-                  </button>
-                  <button className="w-full px-4 py-3 rounded-xl bg-white/5 text-gray-300 hover:bg-white/10 transition-colors flex items-center gap-3">
-                    <CreditCard className="w-5 h-5" />
-                    <span>Billing & Payment</span>
-                  </button>
-                  <button className="w-full px-4 py-3 rounded-xl bg-white/5 text-gray-300 hover:bg-white/10 transition-colors flex items-center gap-3">
-                    <Shield className="w-5 h-5" />
-                    <span>Security</span>
-                  </button>
                   {isAdmin && (
                     <button
                       onClick={handleAdminRedirect}
@@ -323,41 +310,6 @@ const Dashboard = () => {
                       <span>Admin Panel</span>
                     </button>
                   )}
-                </div>
-              </div>
-
-              {/* Quick Stats */}
-              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-                <h4 className="text-lg font-semibold text-white mb-4">
-                  Quick Stats
-                </h4>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
-                        <Heart className="w-5 h-5 text-green-400" />
-                      </div>
-                      <div>
-                        <div className="text-gray-300 text-sm">Wishlist</div>
-                        <div className="text-white font-bold">
-                          {wishlistProducts.length} items
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                        <Package className="w-5 h-5 text-blue-400" />
-                      </div>
-                      <div>
-                        <div className="text-gray-300 text-sm">Purchased</div>
-                        <div className="text-white font-bold">
-                          {purchasedProducts.length} products
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>

@@ -7,7 +7,7 @@ import {
   Package,
   Plus,
   RefreshCw,
-  Search
+  Search,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import AddBadgeModal from "./AddBadgeModal/AddBadgeModal";
@@ -20,9 +20,6 @@ import EditProductModal from "./EditProductsModal/EditProductsModal";
 import ProductCard from "./ProductCard/ProductCard";
 import ProductTable from "./ProductsTable/ProductsTable";
 import ProductViewModal from "./ProductViewModal/ProductViewModal";
-
-
-
 
 const ProductsComponents = () => {
   // State Management
@@ -120,7 +117,7 @@ const ProductsComponents = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentProducts = sortedProducts.slice(
     indexOfFirstItem,
-    indexOfLastItem
+    indexOfLastItem,
   );
   const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
 
@@ -132,7 +129,10 @@ const ProductsComponents = () => {
       const formData = new FormData();
       Object.keys(productData).forEach((key) => {
         if (key === "features" && Array.isArray(productData[key])) {
-          formData.append(key, JSON.stringify(productData[key]));
+          // Array এর প্রতিটি element আলাদা আলাদা append করুন
+          productData[key].forEach((feature, index) => {
+            formData.append(`features[${index}]`, feature);
+          });
         } else if (key !== "images") {
           formData.append(key, productData[key]);
         }
@@ -337,7 +337,7 @@ const ProductsComponents = () => {
 
   // Loading State
   if (loading) {
-    return <SimpleLoader />
+    return <SimpleLoader />;
   }
 
   // Error State
@@ -613,8 +613,8 @@ const ProductsComponents = () => {
           selectedProduct
             ? "Delete Product"
             : selectedCategory
-            ? "Delete Category"
-            : "Delete Badge"
+              ? "Delete Category"
+              : "Delete Badge"
         }
         itemName={
           selectedProduct?.name || selectedCategory?.name || selectedBadge?.name
